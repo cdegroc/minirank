@@ -46,6 +46,13 @@ cdef extern from "src/sofia-ml-methods.h" namespace "sofia_ml":
     void SvmPredictionsOnTestSet(SfDataSet test_data,
         SfWeightVector, vector[float]*)
 
+    void StochasticOuterLoop(SfDataSet, LearnerType, EtaType,
+                             float, float, int num_iters, SfWeightVector*)
+
+    void StochasticQueryNormRankLoop(SfDataSet, LearnerType, EtaType,
+                                     float, float, int num_iters, SfWeightVector*)
+
+
 def train(train_data, int n_features, float alpha, int max_iter, bool fit_intercept,
           model, float step_probability):
     cdef SfDataSet *data = new SfDataSet(train_data, BUFFER_MB, fit_intercept)
@@ -59,6 +66,12 @@ def train(train_data, int n_features, float alpha, int max_iter, bool fit_interc
     elif model == 'combined-ranking':
         StochasticClassificationAndRankLoop(deref(data), SGD_SVM, BASIC_ETA, alpha, c,
             step_probability, max_iter, w)
+    elif model == 'stochastic':
+        StochasticOuterLoop(deref(data), SGD_SVM, BASIC_ETA, alpha, c, max_iter, w)
+    elif model == 'balanced-stochastic':
+        BalancedStochasticOuterLoop(deref(data), SGD_SVM, BASIC_ETA, alpha, c, max_iter, w)
+    elif model == 'query-norm-rank':
+        StochasticQueryNormRankLoop(deref(data), SGD_SVM, BASIC_ETA, alpha, c, max_iter, w)
     else:
         raise NotImplementedError
     cdef np.ndarray[ndim=1, dtype=np.float64_t] coef = np.empty(n_features)
