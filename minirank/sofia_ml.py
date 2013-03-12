@@ -26,7 +26,7 @@ def sgd_train(X, y, b, alpha, n_features=None, model='rank', max_iter=100, step_
 
     alpha: float
 
-    model : {'rank', 'combined-ranking', 'roc'}
+    model : {'rank', 'combined-ranking', 'roc', 'stochastic', 'balanced-stochastic', 'query-norm-rank'}
 
     Returns
     -------
@@ -46,16 +46,18 @@ def sgd_train(X, y, b, alpha, n_features=None, model='rank', max_iter=100, step_
                 step_probability)
     return w, None
 
+
 def sgd_predict(data, coef, blocks=None):
     # TODO: isn't query_id in data ???
     s_coef = ''
     for e in coef:
         s_coef += '%.5f ' % e
     s_coef = s_coef[:-1]
-    if isinstance(X, bstring):
+    if isinstance(data, bstring):
         return _sofia_ml.predict(data, s_coef, False)
     else:
-        X = np.asarray(data)
+        X = data
+        #X = np.asarray(data)
         if blocks is None:
             blocks = np.ones(X.shape[0])
         with tempfile.NamedTemporaryFile() as f:

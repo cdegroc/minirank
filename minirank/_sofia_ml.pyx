@@ -59,6 +59,9 @@ def train(train_data, int n_features, float alpha, int max_iter, bool fit_interc
     cdef SfWeightVector *w = new SfWeightVector(n_features)
     cdef float c = 0.0
     cdef int i
+
+    #  TODO : Select learner_type and eta_type. Rename model to loop_type.
+
     if model == 'rank':
         StochasticRankLoop(deref(data), PEGASOS, BASIC_ETA, alpha, c, max_iter, w)
     elif model == 'roc':
